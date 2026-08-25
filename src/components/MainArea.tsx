@@ -192,7 +192,13 @@ export function useLocalStorage<S>(
 
       return initValue;
     } catch {
-      // 読み取りに失敗したので初期値を返す
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // localStorage自体が利用できない場合は削除失敗を無視する
+      }
+
+      // 読み取りまたはパースに失敗したので初期値を返す
       return initValue;
     }
   });
