@@ -348,6 +348,11 @@ const MainArea: FC = () => {
 
   // 確率計算worker周り
   const probCalcWorkerRef = useRef<Worker | null>(null);
+  const errorTRef = useRef(errorT);
+
+  useEffect(() => {
+    errorTRef.current = errorT;
+  }, [errorT]);
 
   useEffect(() => {
     probCalcWorkerRef.current = new Worker();
@@ -357,7 +362,7 @@ const MainArea: FC = () => {
 
       if (error !== '') {
         const errors = error.split(' ');
-        alert(errorT(errors[0], { error: errors.slice(1) }));
+        alert(errorTRef.current(errors[0], { error: errors.slice(1) }));
         setProbs(null);
         setIsMaxProbs(null);
       } else {
@@ -408,7 +413,7 @@ const MainArea: FC = () => {
       probCalcWorkerRef.current?.terminate();
     };
     // countが変化したらWorkerを再生成
-  }, [errorT, openMap, workerResetCnt]);
+  }, [openMap, workerResetCnt]);
 
   const onExecute = () => {
     setIsRunning(true);
