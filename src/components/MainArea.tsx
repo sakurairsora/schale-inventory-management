@@ -334,7 +334,7 @@ const MainArea: FC = () => {
       probCalcWorkerRef.current?.terminate();
     };
     // countが変化したらWorkerを再生成
-  }, [openMap, workerResetCnt]);
+  }, [errorT, openMap, workerResetCnt]);
 
   const onExecute = () => {
     setIsRunning(true);

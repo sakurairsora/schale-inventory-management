@@ -1,5 +1,6 @@
 import { type FC } from 'react';
 import { Tooltip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Rotate90DegreesCwIcon from '@mui/icons-material/Rotate90DegreesCw';
 import Box from '@mui/material/Box';
@@ -12,7 +13,6 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import ToggleButton from '@mui/material/ToggleButton';
 import { type PlacedItem } from './ItemPane';
 import { getRotatedHeight, getRotatedWidth } from './ItemPane';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
   placedItem: PlacedItem;
