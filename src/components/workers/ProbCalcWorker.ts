@@ -18,7 +18,8 @@ self.addEventListener('message', async (e) => {
     const result = solve(input) as { probs: number[][]; error: string };
     self.postMessage(result);
   } catch (ex) {
-    self.postMessage({ probs: null, error: ex as string });
+    const error = ex instanceof Error ? ex.message : String(ex);
+    self.postMessage({ probs: null, error });
   }
 });
 
