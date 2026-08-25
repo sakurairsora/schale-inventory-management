@@ -102,12 +102,74 @@ const predefinedItems: ItemSet[][] = [
   ],
 ] as const;
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isIntegerInRange = (value: unknown, min: number, max: number) =>
+  typeof value === 'number' &&
+  Number.isInteger(value) &&
+  value >= min &&
+  value <= max;
+
+const isValidStoredItems = (value: unknown): value is ItemAndPlacement[] => {
+  if (!Array.isArray(value) || value.length !== 3) {
+    return false;
+  }
+
+  return value.every((entry, itemIndex) => {
+    if (
+      !isRecord(entry) ||
+      !isRecord(entry.item) ||
+      !isRecord(entry.item.item) ||
+      !Array.isArray(entry.placements)
+    ) {
+      return false;
+    }
+
+    const item = entry.item.item;
+    const expectedIndex = itemIndex + 1;
+    if (
+      !isIntegerInRange(item.width, 1, 4) ||
+      !isIntegerInRange(item.height, 1, 4) ||
+      item.index !== expectedIndex ||
+      !isIntegerInRange(entry.item.count, 0, 7)
+    ) {
+      return false;
+    }
+
+    return entry.placements.every((placement) => {
+      if (!isRecord(placement) || !isRecord(placement.item)) {
+        return false;
+      }
+
+      const placedItem = placement.item;
+
+      return (
+        placedItem.width === item.width &&
+        placedItem.height === item.height &&
+        placedItem.index === expectedIndex &&
+        typeof placement.rotated === 'boolean' &&
+        isIntegerInRange(placement.row, 1, 5) &&
+        isIntegerInRange(placement.col, 1, 9) &&
+        typeof placement.id === 'string' &&
+        placement.id.length > 0
+      );
+    });
+  });
+};
+
+const isValidOpenMap = (value: unknown): value is boolean[] =>
+  Array.isArray(value) &&
+  value.length === 45 &&
+  value.every((open) => typeof open === 'boolean');
+
 /**
  * ローカルストレージに保存された値を取得・更新する
  */
 export function useLocalStorage<S>(
   key: string,
   initValue: S,
+  isValid: (value: unknown) => value is S,
 ): [S, (setStateAction: S | ((prevState: S) => S)) => void] {
   const [value, setValue] = useState<S>(() => {
     // ブラウザ環境チェック
@@ -117,10 +179,26 @@ export function useLocalStorage<S>(
 
     try {
       const savedValue = localStorage.getItem(key);
+      if (savedValue === null) {
+        return initValue;
+      }
 
-      return savedValue !== null ? (JSON.parse(savedValue) as S) : initValue;
-    } catch (e) {
-      // 読み取りに失敗したので初期値を返す
+      const parsedValue: unknown = JSON.parse(savedValue);
+      if (isValid(parsedValue)) {
+        return parsedValue;
+      }
+
+      localStorage.removeItem(key);
+
+      return initValue;
+    } catch {
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        // localStorage自体が利用できない場合は削除失敗を無視する
+      }
+
+      // 読み取りまたはパースに失敗したので初期値を返す
       return initValue;
     }
   });
@@ -156,6 +234,7 @@ const MainArea: FC = () => {
   const [items, setItems] = useLocalStorage(
     'items',
     predefinedItems[0].map((itemSet) => new ItemAndPlacement(itemSet, [])),
+    isValidStoredItems,
   );
   const [probs, setProbs] = useState<number[][] | null>(null);
   const [isMaxProbs, setIsMaxProbs] = useState<boolean[][] | null>(null);
@@ -168,6 +247,7 @@ const MainArea: FC = () => {
   const [openMap, setOpenMap] = useLocalStorage(
     'openMap',
     Array(45).fill(false) as boolean[],
+    isValidOpenMap,
   );
   const [workerResetCnt, setWorkerResetCnt] = useState(0);
 
@@ -274,6 +354,11 @@ const MainArea: FC = () => {
 
   // 確率計算worker周り
   const probCalcWorkerRef = useRef<Worker | null>(null);
+  const errorTRef = useRef(errorT);
+
+  useEffect(() => {
+    errorTRef.current = errorT;
+  }, [errorT]);
 
   useEffect(() => {
     probCalcWorkerRef.current = new Worker();
@@ -283,7 +368,7 @@ const MainArea: FC = () => {
 
       if (error !== '') {
         const errors = error.split(' ');
-        alert(errorT(errors[0], { error: errors.slice(1) }));
+        alert(errorTRef.current(errors[0], { error: errors.slice(1) }));
         setProbs(null);
         setIsMaxProbs(null);
       } else {

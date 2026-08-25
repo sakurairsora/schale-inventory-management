@@ -59,7 +59,7 @@ const Header: FC = () => {
 
   useEffect(() => {
     document.title = t('typography');
-  }, [i18n.language]);
+  }, [i18n.language, t]);
 
   return (
     <>
