@@ -58,23 +58,24 @@ const Board: FC<Props> = (props) => {
     maxProb,
   }));
 
-  const { setMask, removeMask } = useOverlayContext();
+  const { visible: overlayVisible, setMask, removeMask } = useOverlayContext();
   const refFirstCoverButtonRoot = useRef<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     const boardContainer = document.getElementById('board-container');
-    if (boardContainer === null) return;
+    const overlay = document.getElementById('overlay');
+    if (boardContainer === null || overlay === null) return;
     const updateMask = () => {
       const boardContainerRect = boardContainer.getBoundingClientRect();
+      const overlayRect = overlay.getBoundingClientRect();
       if (refFirstCoverButtonRoot.current === null)
         throw new Error('firstCoverButtonRoot element not found');
-      const offsetLeft =
-        refFirstCoverButtonRoot.current.getBoundingClientRect().left -
-        boardContainerRect.left;
+      const firstCoverButtonRootRect =
+        refFirstCoverButtonRoot.current.getBoundingClientRect();
       setMask('board', {
-        x: boardContainer.offsetLeft + offsetLeft,
-        y: boardContainer.offsetTop,
+        x: firstCoverButtonRootRect.left - overlayRect.left,
+        y: boardContainerRect.top - overlayRect.top,
         width: 70 * 9,
-        height: boardContainer.offsetHeight,
+        height: boardContainerRect.height,
         margin: 5,
       });
     };
@@ -88,7 +89,7 @@ const Board: FC<Props> = (props) => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', updateMask);
     };
-  }, [setMask, removeMask]);
+  }, [overlayVisible, setMask, removeMask]);
   const { placeSelecting, selectingPlacedItem, setSelectingPlace } =
     usePlaceSelectHelper();
 
