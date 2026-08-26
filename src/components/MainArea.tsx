@@ -56,6 +56,7 @@ const bodyPillow = { width: 1, height: 4 } as const; // 抱き枕
 */
 
 // 百ヨリ出ズル一輪ノ 〜いざ尋常に、水上勝負〜 のアイテム
+/*
 const waterGun = { width: 3, height: 2 } as const; // 水鉄砲
 const smartphoneCase = { width: 3, height: 1 } as const; // スマホケース
 const sunscreen = { width: 1, height: 2 } as const; // 日焼け止め
@@ -63,42 +64,84 @@ const surfboard = { width: 4, height: 2 } as const; // サーフボード
 const parasol = { width: 1, height: 4 } as const; // 日傘
 const swimRing = { width: 3, height: 3 } as const; // 浮き輪
 const bandana = { width: 2, height: 2 } as const; // バンダナ
+*/
+
+// DIVE into OCEAN! のアイテム
+const seahorse = { width: 3, height: 1 } as const; // タツノオトシゴ
+const seaweed = { width: 1, height: 4 } as const; // 海藻
+const seaUrchin = { width: 3, height: 2 } as const; // ウニ
+const nudibranch = { width: 1, height: 2 } as const; // ウミウシ
+const starfish = { width: 2, height: 2 } as const; // ヒトデ
+const spiralShell = { width: 4, height: 2 } as const; // 巻貝
+const turtleShell = { width: 3, height: 3 } as const; // 亀の甲羅
 
 const predefinedItems: ItemSet[][] = [
   [
-    { item: { ...waterGun, index: 1 }, count: 2 },
-    { item: { ...smartphoneCase, index: 2 }, count: 5 },
-    { item: { ...sunscreen, index: 3 }, count: 2 },
+    { item: { ...seahorse, index: 1 }, count: 4 },
+    { item: { ...seaweed, index: 2 }, count: 3 },
+    { item: { ...seaUrchin, index: 3 }, count: 1 },
   ],
   [
-    { item: { ...surfboard, index: 1 }, count: 1 },
-    { item: { ...parasol, index: 2 }, count: 2 },
-    { item: { ...smartphoneCase, index: 3 }, count: 5 },
+    { item: { ...nudibranch, index: 1 }, count: 3 },
+    { item: { ...starfish, index: 2 }, count: 4 },
+    { item: { ...spiralShell, index: 3 }, count: 1 },
   ],
   [
-    { item: { ...swimRing, index: 1 }, count: 1 },
-    { item: { ...bandana, index: 2 }, count: 4 },
-    { item: { ...sunscreen, index: 3 }, count: 3 },
+    { item: { ...seahorse, index: 1 }, count: 3 },
+    { item: { ...starfish, index: 2 }, count: 3 },
+    { item: { ...turtleShell, index: 3 }, count: 1 },
   ],
   [
-    { item: { ...waterGun, index: 1 }, count: 2 },
-    { item: { ...smartphoneCase, index: 2 }, count: 5 },
-    { item: { ...sunscreen, index: 3 }, count: 2 },
+    { item: { ...seahorse, index: 1 }, count: 2 },
+    { item: { ...starfish, index: 2 }, count: 3 },
+    { item: { ...seaUrchin, index: 3 }, count: 2 },
   ],
   [
-    { item: { ...surfboard, index: 1 }, count: 1 },
-    { item: { ...parasol, index: 2 }, count: 2 },
-    { item: { ...smartphoneCase, index: 3 }, count: 5 },
+    { item: { ...seahorse, index: 1 }, count: 4 },
+    { item: { ...seaweed, index: 2 }, count: 3 },
+    { item: { ...seaUrchin, index: 3 }, count: 1 },
   ],
   [
-    { item: { ...swimRing, index: 1 }, count: 1 },
-    { item: { ...bandana, index: 2 }, count: 4 },
-    { item: { ...sunscreen, index: 3 }, count: 3 },
+    { item: { ...nudibranch, index: 1 }, count: 3 },
+    { item: { ...starfish, index: 2 }, count: 4 },
+    { item: { ...spiralShell, index: 3 }, count: 1 },
+  ],
+  // 7〜12周目は1〜4周目と同じパターンと仮定
+  [
+    { item: { ...seahorse, index: 1 }, count: 3 },
+    { item: { ...starfish, index: 2 }, count: 3 },
+    { item: { ...turtleShell, index: 3 }, count: 1 },
   ],
   [
-    { item: { ...surfboard, index: 1 }, count: 2 },
-    { item: { ...smartphoneCase, index: 2 }, count: 3 },
-    { item: { ...sunscreen, index: 3 }, count: 6 },
+    { item: { ...seahorse, index: 1 }, count: 2 },
+    { item: { ...starfish, index: 2 }, count: 3 },
+    { item: { ...seaUrchin, index: 3 }, count: 2 },
+  ],
+  [
+    { item: { ...seahorse, index: 1 }, count: 4 },
+    { item: { ...seaweed, index: 2 }, count: 3 },
+    { item: { ...seaUrchin, index: 3 }, count: 1 },
+  ],
+  [
+    { item: { ...nudibranch, index: 1 }, count: 3 },
+    { item: { ...starfish, index: 2 }, count: 4 },
+    { item: { ...spiralShell, index: 3 }, count: 1 },
+  ],
+  [
+    { item: { ...seahorse, index: 1 }, count: 3 },
+    { item: { ...starfish, index: 2 }, count: 3 },
+    { item: { ...turtleShell, index: 3 }, count: 1 },
+  ],
+  [
+    { item: { ...seahorse, index: 1 }, count: 2 },
+    { item: { ...starfish, index: 2 }, count: 3 },
+    { item: { ...seaUrchin, index: 3 }, count: 2 },
+  ],
+  [
+    // 13周目以降の数量は仮
+    { item: { ...seahorse, index: 1 }, count: 1 },
+    { item: { ...seaweed, index: 2 }, count: 1 },
+    { item: { ...spiralShell, index: 3 }, count: 1 },
   ],
 ] as const;
 
