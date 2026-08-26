@@ -46,7 +46,7 @@ description: Schale Inventory Managementでイベント開始に合わせて備�
 次を実行する。
 
 ```bash
-node .agents/skills/schale-event-support/scripts/check_event_presets.mjs
+pnpm test:event-presets
 pnpm lint
 pnpm build
 git diff --check
