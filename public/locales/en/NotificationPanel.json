@@ -1,6 +1,6 @@
 {
   "alert": [
-    "We have completed the updates for the event that began on 2026/06/10. We assume the item quantities are the same as they were during the 2025/6 event. If you find anything, please let us know through a ",
+    "We are currently working on support for the event DIVE into OCEAN!, which began on 2026/08/26. We assume that the item quantities for rounds 7 through 12 follow the same pattern as the preceding rounds. Since the quantities for round 13 onward are unknown, provisional values have been set. If you know the correct quantities, please report them through a ",
     "github issue. ",
     "We would greatly appreciate it."
   ]
