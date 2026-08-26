@@ -18,6 +18,13 @@ export class ItemAndPlacement {
   }
 }
 
+type PresetItemSet = Omit<ItemSet, 'count'> & {
+  /** nullは数量不明を表し、プリセット適用時にunknownPresetCountFallbackへ変換する。 */
+  count: number | null;
+};
+
+const unknownPresetCountFallback = 1;
+
 const clampPosition = (value: number, size: number, boardSize: number) => {
   return Math.min(Math.max(value, 1), boardSize - size + 1);
 };
@@ -75,7 +82,7 @@ const starfish = { width: 2, height: 2 } as const; // ヒトデ
 const spiralShell = { width: 4, height: 2 } as const; // 巻貝
 const turtleShell = { width: 3, height: 3 } as const; // 亀の甲羅
 
-const predefinedItems: ItemSet[][] = [
+const predefinedItems: PresetItemSet[][] = [
   [
     { item: { ...seahorse, index: 1 }, count: 4 },
     { item: { ...seaweed, index: 2 }, count: 3 },
@@ -138,12 +145,21 @@ const predefinedItems: ItemSet[][] = [
     { item: { ...seaUrchin, index: 3 }, count: 2 },
   ],
   [
-    // 13周目以降の数量は仮
-    { item: { ...seahorse, index: 1 }, count: 1 },
-    { item: { ...seaweed, index: 2 }, count: 1 },
-    { item: { ...spiralShell, index: 3 }, count: 1 },
+    // 13周目以降の数量は不明
+    { item: { ...seahorse, index: 1 }, count: null },
+    { item: { ...seaweed, index: 2 }, count: null },
+    { item: { ...spiralShell, index: 3 }, count: null },
   ],
 ] as const;
+
+const createItemsFromPreset = (presetItems: PresetItemSet[]) =>
+  presetItems.map(
+    ({ item, count }) =>
+      new ItemAndPlacement(
+        { item, count: count ?? unknownPresetCountFallback },
+        [],
+      ),
+  );
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -276,7 +292,7 @@ const MainArea: FC = () => {
 
   const [items, setItems] = useLocalStorage(
     'items',
-    predefinedItems[0].map((itemSet) => new ItemAndPlacement(itemSet, [])),
+    createItemsFromPreset(predefinedItems[0]),
     isValidStoredItems,
   );
   const [probs, setProbs] = useState<number[][] | null>(null);
@@ -286,6 +302,7 @@ const MainArea: FC = () => {
   const [presetAppliedToast, setPresetAppliedToast] = useState<{
     id: string;
     message: string;
+    severity: 'success' | 'warning';
   } | null>(null);
   const [openMap, setOpenMap] = useLocalStorage(
     'openMap',
@@ -490,11 +507,10 @@ const MainArea: FC = () => {
   };
 
   const onItemPresetApply = (preset: number) => {
-    setItems(
-      predefinedItems[preset].map(
-        (itemSet) => new ItemAndPlacement(itemSet, []),
-      ),
-    );
+    const presetItems = predefinedItems[preset];
+    const hasUnknownQuantity = presetItems.some(({ count }) => count == null);
+
+    setItems(createItemsFromPreset(presetItems));
     setProbs(null);
     setIsMaxProbs(null);
     setOpenMap(Array(45).fill(false));
@@ -504,7 +520,13 @@ const MainArea: FC = () => {
     const presetLabel = controlPaneT(`predefined_choice_select.${preset}`);
     setPresetAppliedToast({
       id: crypto.randomUUID(),
-      message: t('item_preset_applied_toast', { presetLabel }),
+      message: t(
+        hasUnknownQuantity
+          ? 'item_preset_applied_with_unknown_quantity_toast'
+          : 'item_preset_applied_toast',
+        { presetLabel },
+      ),
+      severity: hasUnknownQuantity ? 'warning' : 'success',
     });
   };
 
@@ -565,7 +587,7 @@ const MainArea: FC = () => {
       <Snackbar
         key={presetAppliedToast?.id}
         open={presetAppliedToast !== null}
-        autoHideDuration={2000}
+        autoHideDuration={3000}
         onClose={() => {
           setPresetAppliedToast(null);
         }}
@@ -573,7 +595,7 @@ const MainArea: FC = () => {
       >
         {presetAppliedToast == null ? undefined : (
           <Alert
-            severity="success"
+            severity={presetAppliedToast.severity}
             variant="filled"
             onClose={() => {
               setPresetAppliedToast(null);

@@ -42,6 +42,8 @@ const writeFixture = (options = {}) => {
   const validatorMax = options.validatorMax ?? 7;
   const localeLabelCounts = options.localeLabelCounts ?? {};
   const notificationAlertLengths = options.notificationAlertLengths ?? {};
+  const missingUnknownQuantityToastLocales =
+    options.missingUnknownQuantityToastLocales ?? [];
 
   const presets = presetItemCounts
     .map((itemCount, presetIndex) => {
@@ -100,6 +102,15 @@ ${countMenuValues.map((value) => `    <MenuItem value={${value}}>${value}</MenuI
     files[`public/locales/${locale}/NotificationPanel.json`] = JSON.stringify({
       alert: Array.from({ length: alertLength }, () => 'message'),
     });
+    const mainArea = {
+      item_preset_applied_toast: 'Applied {{presetLabel}}',
+      item_preset_applied_with_unknown_quantity_toast:
+        'Applied {{presetLabel}} with unknown quantities',
+    };
+    if (missingUnknownQuantityToastLocales.includes(locale)) {
+      delete mainArea.item_preset_applied_with_unknown_quantity_toast;
+    }
+    files[`public/locales/${locale}/MainArea.json`] = JSON.stringify(mainArea);
   }
 
   for (const [relativePath, contents] of Object.entries(files)) {
@@ -128,6 +139,16 @@ test('整合したイベントプリセットを受理する', () => {
   const result = runChecker();
   assert.equal(result.status, 0, result.stdout + result.stderr);
   assert.match(result.stdout, /OK: 2 presets, 2 menu items, 4 locales/);
+});
+
+test('数量不明のnullを受理する', () => {
+  const result = runChecker({
+    counts: [
+      [1, 2, 3],
+      [null, null, null],
+    ],
+  });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
 });
 
 test('プリセット以外のMenuItemを検査対象に含めない', () => {
@@ -212,5 +233,12 @@ test('3要素でない通知文を検出する', () => {
   assertFailure(
     { notificationAlertLengths: { 'zh-CN': 2 } },
     /zh-CN\/NotificationPanel\.json.*3要素/,
+  );
+});
+
+test('数量不明時のトースト翻訳欠落を検出する', () => {
+  assertFailure(
+    { missingUnknownQuantityToastLocales: ['ko'] },
+    /ko\/MainArea\.json.*unknown_quantity/,
   );
 });
