@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "test:event-presets": "node --test .agents/skills/schale-event-support/scripts/check_event_presets.test.mjs && node .agents/skills/schale-event-support/scripts/check_event_presets.mjs",
     "preview": "vite preview",
     "lint:es": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:es:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
