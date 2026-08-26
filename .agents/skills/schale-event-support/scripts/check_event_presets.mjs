@@ -133,17 +133,25 @@ presets.forEach((preset, presetIndex) => {
       );
     }
 
-    if (
-      countProperty == null ||
-      !ts.isPropertyAssignment(countProperty) ||
-      !ts.isNumericLiteral(countProperty.initializer)
-    ) {
+    if (countProperty == null || !ts.isPropertyAssignment(countProperty)) {
       errors.push(
-        `predefinedItems[${presetIndex}][${itemIndex}].count が整数リテラルではありません`,
+        `predefinedItems[${presetIndex}][${itemIndex}].count を取得できません`,
       );
       return;
     }
-    const count = Number(countProperty.initializer.text);
+
+    const countInitializer = unwrap(countProperty.initializer);
+    if (countInitializer.kind === ts.SyntaxKind.NullKeyword) {
+      return;
+    }
+    if (!ts.isNumericLiteral(countInitializer)) {
+      errors.push(
+        `predefinedItems[${presetIndex}][${itemIndex}].count は整数リテラルまたはnullである必要があります`,
+      );
+      return;
+    }
+
+    const count = Number(countInitializer.text);
     if (!Number.isInteger(count) || count < 0) {
       errors.push(
         `predefinedItems[${presetIndex}][${itemIndex}].count が不正です`,
@@ -294,6 +302,20 @@ for (const locale of ['ja', 'en', 'ko', 'zh-CN']) {
     notificationJson.alert.length !== 3
   ) {
     errors.push(`${notificationPath}: alert は3要素である必要があります`);
+  }
+
+  const mainAreaPath = `public/locales/${locale}/MainArea.json`;
+  const mainAreaJson = JSON.parse(read(mainAreaPath));
+  for (const key of [
+    'item_preset_applied_toast',
+    'item_preset_applied_with_unknown_quantity_toast',
+  ]) {
+    const message = mainAreaJson[key];
+    if (typeof message !== 'string' || !message.includes('{{presetLabel}}')) {
+      errors.push(
+        `${mainAreaPath}: ${key} に{{presetLabel}}を含む文言が必要です`,
+      );
+    }
   }
 }
 
