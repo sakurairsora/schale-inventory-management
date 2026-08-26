@@ -60,4 +60,4 @@ git diff --check
 - 暫定値が残る初回PRは過去例にならいタイトルを `YYYY/M/D開始イベントへの対応 part1` とし、本文に確認済み範囲、推定範囲、仮値を明記する。
 - 関連issueは本文で参照する。未知値の追補が必要なら初回PRでcloseせず、確定値を反映する追補PRでcloseする。
 - 復刻元を使う場合は、どの開催時データを流用したかと、今回確認した範囲を本文に書く。
-- PR本文には変更内容と `pnpm lint`、`pnpm build`、`git diff --check`、ブラウザ確認結果を記載する。
+- PR本文には変更内容と `pnpm test:event-presets`、`pnpm lint`、`pnpm build`、`git diff --check`、ブラウザ確認結果を記載する。

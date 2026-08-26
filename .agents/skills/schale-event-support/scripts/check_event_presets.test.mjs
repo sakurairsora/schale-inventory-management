@@ -36,6 +36,8 @@ const writeFixture = (options = {}) => {
     [3, 2, 1],
   ];
   const menuValues = options.menuValues ?? [0, 1];
+  const extraPresetMenuItems = options.extraPresetMenuItems ?? [];
+  const unrelatedMenuValues = options.unrelatedMenuValues ?? [];
   const countMenuValues = range(options.countMenuMax ?? 7);
   const validatorMax = options.validatorMax ?? 7;
   const localeLabelCounts = options.localeLabelCounts ?? {};
@@ -61,8 +63,14 @@ const validCount = isIntegerInRange(entry.item.count, 0, ${validatorMax});
 `;
   const controlPane = `
 const control = (
-  <Select>
+  <Select id="predefined-choice-select">
 ${menuValues.map((value) => `    <MenuItem value={${value}}>Round</MenuItem>`).join('\n')}
+${extraPresetMenuItems.join('\n')}
+  </Select>
+);
+const unrelatedControl = (
+  <Select id="unrelated-select">
+${unrelatedMenuValues.map((value) => `    <MenuItem value={${value}}>Other</MenuItem>`).join('\n')}
   </Select>
 );
 `;
@@ -122,6 +130,19 @@ test('整合したイベントプリセットを受理する', () => {
   assert.match(result.stdout, /OK: 2 presets, 2 menu items, 4 locales/);
 });
 
+test('プリセット以外のMenuItemを検査対象に含めない', () => {
+  const result = runChecker({ unrelatedMenuValues: [99] });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /OK: 2 presets, 2 menu items, 4 locales/);
+});
+
+test('空のイベントプリセットを検出する', () => {
+  assertFailure(
+    { presetItemCounts: [], menuValues: [] },
+    /predefinedItems は1件以上/,
+  );
+});
+
 test('3品でないプリセットを検出する', () => {
   assertFailure({ presetItemCounts: [2, 3] }, /2品/);
 });
@@ -144,6 +165,17 @@ test('欠落したプリセットMenuItemを検出する', () => {
 
 test('重複したプリセットMenuItemを検出する', () => {
   assertFailure({ menuValues: [0, 1, 1] }, /MenuItem value/);
+});
+
+test('数値リテラルでないプリセットMenuItemを検出する', () => {
+  assertFailure(
+    {
+      extraPresetMenuItems: [
+        '    <MenuItem value={extraPreset}>Extra</MenuItem>',
+      ],
+    },
+    /MenuItem valueは数値リテラル/,
+  );
 });
 
 test('1言語だけ異なるプリセットラベル数を検出する', () => {

@@ -73,6 +73,14 @@ const presets =
     : [];
 let maxPresetCount = 0;
 
+if (
+  predefinedItems != null &&
+  ts.isArrayLiteralExpression(predefinedItems) &&
+  presets.length === 0
+) {
+  errors.push('MainArea.tsx: predefinedItems は1件以上必要です');
+}
+
 presets.forEach((preset, presetIndex) => {
   if (!ts.isArrayLiteralExpression(preset)) {
     errors.push(`predefinedItems[${presetIndex}] が配列ではありません`);
@@ -153,28 +161,48 @@ const controlPane = ts.createSourceFile(
   ts.ScriptKind.TSX,
 );
 const presetMenuValues = [];
-const visitControlPane = (node) => {
+const collectPresetMenuValues = (node) => {
+  let attributes = null;
   if (
     ts.isJsxSelfClosingElement(node) &&
     node.tagName.getText() === 'MenuItem'
   ) {
-    const valueAttribute = findAttribute(node.attributes, 'value');
-    if (valueAttribute != null) {
-      const value = numericJsxValue(valueAttribute);
-      if (value != null) presetMenuValues.push(value);
-    }
+    attributes = node.attributes;
   }
   if (
     ts.isJsxElement(node) &&
     node.openingElement.tagName.getText() === 'MenuItem'
   ) {
-    const valueAttribute = findAttribute(
-      node.openingElement.attributes,
-      'value',
-    );
-    if (valueAttribute != null) {
-      const value = numericJsxValue(valueAttribute);
-      if (value != null) presetMenuValues.push(value);
+    attributes = node.openingElement.attributes;
+  }
+
+  if (attributes != null) {
+    const valueAttribute = findAttribute(attributes, 'value');
+    const value =
+      valueAttribute == null ? null : numericJsxValue(valueAttribute);
+    if (value == null || !Number.isFinite(value)) {
+      errors.push(
+        'ControlPane.tsx: プリセットのMenuItem valueは数値リテラルである必要があります',
+      );
+    } else {
+      presetMenuValues.push(value);
+    }
+  }
+  ts.forEachChild(node, collectPresetMenuValues);
+};
+const visitControlPane = (node) => {
+  if (
+    ts.isJsxElement(node) &&
+    node.openingElement.tagName.getText() === 'Select'
+  ) {
+    const idAttribute = findAttribute(node.openingElement.attributes, 'id');
+    if (
+      idAttribute?.initializer != null &&
+      ts.isStringLiteral(idAttribute.initializer) &&
+      idAttribute.initializer.text === 'predefined-choice-select'
+    ) {
+      ts.forEachChild(node, collectPresetMenuValues);
+      return;
     }
   }
   ts.forEachChild(node, visitControlPane);
