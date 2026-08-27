@@ -113,7 +113,6 @@ const predefinedItems: PresetItemSet[][] = [
     { item: { ...starfish, index: 2 }, count: 4 },
     { item: { ...spiralShell, index: 3 }, count: 1 },
   ],
-  // 7〜12周目は1〜4周目と同じパターンと仮定
   [
     { item: { ...seahorse, index: 1 }, count: 3 },
     { item: { ...starfish, index: 2 }, count: 3 },
@@ -145,10 +144,9 @@ const predefinedItems: PresetItemSet[][] = [
     { item: { ...seaUrchin, index: 3 }, count: 2 },
   ],
   [
-    // 13周目以降の数量は不明
-    { item: { ...seahorse, index: 1 }, count: null },
-    { item: { ...seaweed, index: 2 }, count: null },
-    { item: { ...spiralShell, index: 3 }, count: null },
+    { item: { ...seahorse, index: 1 }, count: 2 },
+    { item: { ...seaweed, index: 2 }, count: 2 },
+    { item: { ...spiralShell, index: 3 }, count: 2 },
   ],
 ] as const;
 
