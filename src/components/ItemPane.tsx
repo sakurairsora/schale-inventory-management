@@ -193,7 +193,8 @@ const ItemPane: FC<Props> = (props) => {
                   onClick={(e) => {
                     const newPlacedItem: PlacedItem = {
                       item: itemSet.item,
-                      rotated: false,
+                      rotated:
+                        !isSquare(itemSet.item) && !isVertical(itemSet.item),
                       row: 1,
                       col: 1,
                       id: crypto.randomUUID(),
@@ -208,11 +209,7 @@ const ItemPane: FC<Props> = (props) => {
                   disabled={placedItems.length >= itemSet.count}
                 >
                   {t('add_button_tooltip.1')}
-                  {!isSquare(itemSet.item)
-                    ? isVertical(itemSet.item)
-                      ? t('add_button_tooltip.2')
-                      : t('add_button_tooltip.3')
-                    : ''}
+                  {!isSquare(itemSet.item) ? t('add_button_tooltip.2') : ''}
                 </Button>
                 {!isSquare(itemSet.item) && (
                   <Button
@@ -222,7 +219,7 @@ const ItemPane: FC<Props> = (props) => {
                     onClick={(e) => {
                       const newPlacedItem: PlacedItem = {
                         item: itemSet.item,
-                        rotated: true,
+                        rotated: isVertical(itemSet.item),
                         row: 1,
                         col: 1,
                         id: crypto.randomUUID(),
@@ -237,11 +234,7 @@ const ItemPane: FC<Props> = (props) => {
                     disabled={placedItems.length >= itemSet.count}
                   >
                     {t('add_button_tooltip.1')}
-                    {!isSquare(itemSet.item)
-                      ? isVertical(itemSet.item)
-                        ? t('add_button_tooltip.3')
-                        : t('add_button_tooltip.2')
-                      : ''}
+                    {t('add_button_tooltip.3')}
                   </Button>
                 )}
               </Box>
