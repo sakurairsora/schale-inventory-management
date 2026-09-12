@@ -1,8 +1,7 @@
 import { type FC } from 'react';
-import { Divider, Tooltip } from '@mui/material';
+import { Divider, SvgIcon, Tooltip } from '@mui/material';
 import { red, lightBlue, yellow } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
-import AddIcon from '@mui/icons-material/Add';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -65,6 +64,31 @@ type Props = {
   onAddPlacedItem: (item: PlacedItem) => void;
   onModifyPlacedItem: (item: PlacedItem) => void;
   onRemovePlacedItem: (item: PlacedItem) => void;
+};
+
+const PlacementShapeIcon: FC<{
+  orientation: 'vertical' | 'horizontal' | 'square';
+}> = ({ orientation }) => {
+  // 線幅を含めた外寸を縦10×20、横20×10、正方形16×16に揃える。
+  const width =
+    orientation === 'square' ? 14 : orientation === 'vertical' ? 8 : 18;
+  const height =
+    orientation === 'square' ? 14 : orientation === 'vertical' ? 18 : 8;
+
+  return (
+    <SvgIcon>
+      <rect
+        x={(24 - width) / 2}
+        y={(24 - height) / 2}
+        width={width}
+        height={height}
+        rx={1}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+      />
+    </SvgIcon>
+  );
 };
 
 const ItemPane: FC<Props> = (props) => {
@@ -189,7 +213,13 @@ const ItemPane: FC<Props> = (props) => {
                 <Button
                   variant="contained"
                   fullWidth
-                  startIcon={<AddIcon />}
+                  startIcon={
+                    <PlacementShapeIcon
+                      orientation={
+                        isSquare(itemSet.item) ? 'square' : 'vertical'
+                      }
+                    />
+                  }
                   onClick={(e) => {
                     const newPlacedItem: PlacedItem = {
                       item: itemSet.item,
@@ -215,7 +245,7 @@ const ItemPane: FC<Props> = (props) => {
                   <Button
                     variant="contained"
                     fullWidth
-                    startIcon={<AddIcon />}
+                    startIcon={<PlacementShapeIcon orientation="horizontal" />}
                     onClick={(e) => {
                       const newPlacedItem: PlacedItem = {
                         item: itemSet.item,
